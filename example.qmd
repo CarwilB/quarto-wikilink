@@ -1,0 +1,13 @@
+---
+title: "Wikilink Extension Demo"
+format: html
+---
+
+## Icon Only
+Margaret Mead {{< wikilink "Margaret Mead" >}} was an American anthropologist.
+
+## Icon + Label
+Learn more: {{< wikilink "Franz Boas" "Franz Boas" >}}
+
+## Custom Size
+Large icon: {{< wikilink "Ruth Benedict" size="1.5em" >}}
