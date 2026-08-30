@@ -6,6 +6,8 @@ format: html
 ## Icon Only
 Margaret Mead {{< wikilink "Margaret Mead" >}} was an American anthropologist.
 
+Paul Rivet ({{< wikilink "Paul Rivet" >}}|{{< wikilink "Paul Rivet" lang="fr" >}}**fr**) was a French anthropologist.
+
 ## Icon + Label
 Learn more: {{< wikilink "Franz Boas" "Franz Boas" size="1.2em" >}}
 
