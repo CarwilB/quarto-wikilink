@@ -10,22 +10,21 @@ return {
       label = pandoc.utils.stringify(args[2])
     end
 
-    -- 2. Build the Wikipedia URL
+    -- 2. Build the Wikipedia URL with underscores
     local page_slug = title:gsub(" ", "_")
     local url = "https://en.wikipedia.org/wiki/" .. page_slug
 
-    -- 3. Resolve the path to the bundled icon
-    -- Quarto will read this absolute path, copy the file to your output folder, 
-    -- and automatically rewrite the final HTML to use a short, legible relative URL.
+    -- 3. Resolve a clean, relative path to the icon
+    -- This captures only the path from "_extensions" onward, preventing 
+    -- Quarto from mangling absolute system paths into broken dot-paths.
     local script_path = PANDOC_SCRIPT_FILE or ""
-    local dir = script_path:match("(.*[/\\])") or "./"
-    local icon_path = dir .. "wikipedia-icon.png"
+    local rel_dir = script_path:match("(_extensions.*[/\\])") or "_extensions/wikilink/"
+    local icon_path = rel_dir .. "wikipedia-icon.png"
 
     -- 4. Parse the size parameter with a strict fallback
     local size = "1.2em"
     if kwargs and kwargs["size"] then
       local parsed_size = pandoc.utils.stringify(kwargs["size"])
-      -- Ensure it isn't an empty string before applying
       if parsed_size ~= "" then
         size = parsed_size
       end
