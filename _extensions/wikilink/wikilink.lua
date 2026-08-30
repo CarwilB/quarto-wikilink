@@ -42,21 +42,23 @@ return {
       end
     end
 
-    -- 6. Construct the image attributes (handling the optional 'size' parameter)
-    local size = "1em"
+-- 6. Construct the image attributes (handling the optional 'size' parameter)
+    local size = "1.2em"
     if kwargs and kwargs["size"] then
       size = pandoc.utils.stringify(kwargs["size"])
     end
+    
+    -- Inject the size directly into the CSS style string, rather than the HTML width attribute
+    local style_str = string.format("width: %s; height: auto; vertical-align: -0.15em; display: inline-block; border: none;", size)
     
     local attr = pandoc.Attr(
       "", -- identifier
       {}, -- classes
       {   -- key-value HTML attributes
-        width = size,
-        style = "vertical-align: -0.15em; display: inline-block; border: none;"
+        style = style_str
       }
     )
-
+    
     -- 7. Create the Pandoc Image element
     -- Arguments: caption inlines, source URL, title string, attributes
     local caption = { pandoc.Str("Wikipedia icon") }
