@@ -5,7 +5,7 @@ local function file_exists(path)
 end
 
 -- Read and encode bundled icon once during compilation
-local icon_path = quarto.utils.resolve_path("wikipedia-icon.png") or "wikipedia-icon.png"
+local icon_path = quarto.project.resolve_path("wikipedia-icon.png") or "wikipedia-icon.png"
 local icon_data_uri = ""
 
 if file_exists(icon_path) then
