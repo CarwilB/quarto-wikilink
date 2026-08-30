@@ -4,10 +4,10 @@ format: html
 ---
 
 ## Icon Only
-Margaret Mead {{< wikilink "Margaret Mead" size="1.2em" >}} was an American anthropologist.
+Margaret Mead {{< wikilink "Margaret Mead" >}} was an American anthropologist.
 
 ## Icon + Label
 Learn more: {{< wikilink "Franz Boas" "Franz Boas" size="1.2em" >}}
 
 ## Custom Size
-Large icon: {{< wikilink "Ruth Benedict" size="1.5em" >}}
+Large icon: {{< wikilink "Ruth Benedict" size="2em" >}}
