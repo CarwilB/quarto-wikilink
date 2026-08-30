@@ -10,18 +10,27 @@ return {
       label = pandoc.utils.stringify(args[2])
     end
 
-    -- 2. Build the Wikipedia URL with underscores
-    local page_slug = title:gsub(" ", "_")
-    local url = "https://en.wikipedia.org/wiki/" .. page_slug
+    -- 2. Parse the lang parameter with a strict fallback to "en"
+    local lang = "en"
+    if kwargs and kwargs["lang"] then
+      local parsed_lang = pandoc.utils.stringify(kwargs["lang"])
+      if parsed_lang ~= "" then
+        lang = parsed_lang
+      end
+    end
 
-    -- 3. Resolve a clean, relative path to the icon
+    -- 3. Build the Wikipedia URL with underscores
+    local page_slug = title:gsub(" ", "_")
+    local url = "https://" .. lang .. ".wikipedia.org/wiki/" .. page_slug
+
+    -- 4. Resolve a clean, relative path to the icon
     -- This captures only the path from "_extensions" onward, preventing 
     -- Quarto from mangling absolute system paths into broken dot-paths.
     local script_path = PANDOC_SCRIPT_FILE or ""
     local rel_dir = script_path:match("(_extensions.*[/\\])") or "_extensions/wikilink/"
     local icon_path = rel_dir .. "wikipedia-icon.png"
 
-    -- 4. Parse the size parameter with a strict fallback
+    -- 5. Parse the size parameter with a strict fallback
     local size = "1.2em"
     if kwargs and kwargs["size"] then
       local parsed_size = pandoc.utils.stringify(kwargs["size"])
@@ -30,7 +39,7 @@ return {
       end
     end
 
-    -- 5. Construct the Image element
+    -- 6. Construct the Image element
     -- We inject the size directly into a CSS style attribute string.
     local img_attr = pandoc.Attr(
       "", -- id
@@ -42,7 +51,7 @@ return {
     
     local img = pandoc.Image({pandoc.Str("Wikipedia icon")}, icon_path, "Wikipedia", img_attr)
 
-    -- 6. Assemble the link content
+    -- 7. Assemble the link content
     local link_content = { img }
     
     if label and label ~= "" then
@@ -50,7 +59,7 @@ return {
       table.insert(link_content, pandoc.Str(label))
     end
 
-    -- 7. Return the final hyperlink
+    -- 8. Return the final hyperlink
     return pandoc.Link(link_content, url, title)
   end
 }
