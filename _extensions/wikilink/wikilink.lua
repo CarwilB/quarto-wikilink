@@ -23,12 +23,27 @@ return {
     local page_slug = title:gsub(" ", "_")
     local url = "https://" .. lang .. ".wikipedia.org/wiki/" .. page_slug
 
-    -- 4. Resolve a clean, relative path to the icon
-    -- This captures only the path from "_extensions" onward, preventing 
+    -- 4. Resolve a clean, project-root-relative path to the icon
+    -- This captures only the path from "_extensions" onward, preventing
     -- Quarto from mangling absolute system paths into broken dot-paths.
     local script_path = PANDOC_SCRIPT_FILE or ""
-    local rel_dir = script_path:match("(_extensions.*[/\\])") or "_extensions/wikilink/"
-    local icon_path = rel_dir .. "wikipedia-icon.png"
+    local rel_dir = (script_path:match("(_extensions.*[/\\])") or "_extensions/wikilink/"):gsub("\\", "/")
+    local icon_rel_path = rel_dir .. "wikipedia-icon.png"
+
+    -- Make sure the icon file actually gets copied into the render output.
+    quarto.doc.add_resource(icon_rel_path)
+
+    -- A path like "_extensions/wikilink/icon.png" is resolved by the browser
+    -- relative to the *current page's* location, not the project root. For
+    -- documents nested in subdirectories of a website/book project this
+    -- points at the wrong place. quarto.project.offset gives the relative
+    -- path from the current document back to the project root, which we
+    -- prepend so the icon resolves correctly no matter how deeply nested
+    -- the referencing page is.
+    local icon_path = icon_rel_path
+    if quarto.project and quarto.project.offset then
+      icon_path = pandoc.path.join({quarto.project.offset, icon_rel_path})
+    end
 
     -- 5. Parse the size parameter with a strict fallback
     local size = "1.2em"
@@ -48,12 +63,12 @@ return {
         style = string.format("width: %s; height: auto; vertical-align: -0.15em; display: inline-block; border: none; margin: 0;", size)
       }
     )
-    
+
     local img = pandoc.Image({pandoc.Str("Wikipedia icon")}, icon_path, "Wikipedia", img_attr)
 
     -- 7. Assemble the link content
     local link_content = { img }
-    
+
     if label and label ~= "" then
       table.insert(link_content, pandoc.Space())
       table.insert(link_content, pandoc.Str(label))
