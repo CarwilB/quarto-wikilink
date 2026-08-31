@@ -44,10 +44,17 @@ return {
     -- needed.
     local icon_path = icon_rel_path
     if quarto.project and quarto.project.directory then
+      -- quarto.doc.input_file and quarto.project.directory are both full
+      -- (absolute) filesystem paths, not paths relative to the project
+      -- root. Strip the project directory prefix off the document's
+      -- directory first, so we count only the subdirectories *within* the
+      -- project (zero for a root-level document) rather than every
+      -- ancestor folder on disk.
       local doc_dir = pandoc.path.directory(quarto.doc.input_file)
+      local rel_doc_dir = pandoc.path.make_relative(doc_dir, quarto.project.directory)
       local steps_to_root = ""
-      if doc_dir ~= "." then
-        for _ in doc_dir:gmatch("[^/\\]+") do
+      if rel_doc_dir ~= "." and rel_doc_dir ~= "" then
+        for _ in rel_doc_dir:gmatch("[^/\\]+") do
           steps_to_root = steps_to_root .. "../"
         end
       end
