@@ -24,25 +24,34 @@ return {
     local url = "https://" .. lang .. ".wikipedia.org/wiki/" .. page_slug
 
     -- 4. Resolve a clean, project-root-relative path to the icon
-    -- This captures only the path from "_extensions" onward, preventing
-    -- Quarto from mangling absolute system paths into broken dot-paths.
+    -- This captures only the path from "_extensions" onward (preserving
+    -- whatever the extension's actual installed name/owner prefix is,
+    -- e.g. "_extensions/wikilink/" or "_extensions/someuser/wikilink/"),
+    -- preventing Quarto from mangling absolute system paths into broken
+    -- dot-paths.
     local script_path = PANDOC_SCRIPT_FILE or ""
     local rel_dir = (script_path:match("(_extensions.*[/\\])") or "_extensions/wikilink/"):gsub("\\", "/")
     local icon_rel_path = rel_dir .. "wikipedia-icon.png"
 
-    -- Make sure the icon file actually gets copied into the render output.
-    quarto.doc.add_resource(icon_rel_path)
-
     -- A path like "_extensions/wikilink/icon.png" is resolved by the browser
-    -- relative to the *current page's* location, not the project root. For
-    -- documents nested in subdirectories of a website/book project this
-    -- points at the wrong place. quarto.project.offset gives the relative
-    -- path from the current document back to the project root, which we
-    -- prepend so the icon resolves correctly no matter how deeply nested
-    -- the referencing page is.
+    -- relative to the *current page's* location, not to wherever
+    -- "_extensions" actually lives. When rendering as part of a project
+    -- (website/book), quarto.doc.input_file is given relative to the
+    -- project root, so we count its directory depth and prepend that many
+    -- "../" segments to walk back up to the root before appending the
+    -- extension-relative path. Outside a project (standalone render), the
+    -- extension folder sits right next to the document, so no offset is
+    -- needed.
     local icon_path = icon_rel_path
-    if quarto.project and quarto.project.offset then
-      icon_path = pandoc.path.join({quarto.project.offset, icon_rel_path})
+    if quarto.project and quarto.project.directory then
+      local doc_dir = pandoc.path.directory(quarto.doc.input_file)
+      local steps_to_root = ""
+      if doc_dir ~= "." then
+        for _ in doc_dir:gmatch("[^/\\]+") do
+          steps_to_root = steps_to_root .. "../"
+        end
+      end
+      icon_path = steps_to_root .. icon_rel_path
     end
 
     -- 5. Parse the size parameter with a strict fallback
